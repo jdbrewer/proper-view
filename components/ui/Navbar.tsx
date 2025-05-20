@@ -13,7 +13,7 @@ export default function Navbar() {
           href="/listings" 
           className="text-gray-700 dark:text-gray-300 font-medium hover:text-blue-600 dark:hover:text-blue-400 text-lg mr-6"
         >
-          Buy
+          Properties
         </Link>
       </div>
       {/* Centered Brand */}

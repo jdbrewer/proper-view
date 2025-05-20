@@ -2,7 +2,6 @@
 
 import React, { useState, useCallback, useEffect, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import FilterBar from './FilterBar';
 import PropertyListings from './PropertyListings';
 import { Property } from '@prisma/client';
 
@@ -179,15 +178,15 @@ function ListingsContent({ properties }: ListingsClientProps) {
         </div>
       )}
 
-      <h2 className="text-2xl font-bold text-gray-900 mb-8 mt-8">All Properties</h2>
+      {/* <h2 className="text-2xl font-bold text-gray-900 mb-8 mt-8">All Properties</h2> */}
       {/* Results Count */}
-      <div 
+      {/* <div 
         className="mb-4 text-gray-500 text-sm"
         aria-live="polite"
         aria-atomic="true"
       >
         Showing {filteredProperties.length} of {properties.length} properties
-      </div>
+      </div> */}
 
       {/* Empty State */}
       {filteredProperties.length === 0 ? (

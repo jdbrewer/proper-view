@@ -202,17 +202,15 @@ const PropertyListings: React.FC<PropertyListingsProps> = React.memo(({ properti
 
       {/* Desktop: Map/List toggle above grid when no location is set */}
       {!isMobile && !hasLocation && (
-        <div className="flex justify-end items-center mb-4">
-          {showMapOnly ? (
-            <button
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 bg-white text-blue-600 font-semibold shadow-sm hover:bg-blue-50 transition-colors"
-              onClick={() => { setShowMapOnly(false); setForceSplitView(false); }}
-              aria-label="Show property list"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12" rx="2"/><path d="M4 10h16"/></svg>
-              List
-            </button>
-          ) : (
+        <div
+          className="mb-4 flex justify-between items-center text-gray-500 text-sm"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          <span>
+            {properties.length} properties
+          </span>
+          {!showMapOnly && !forceSplitView && (
             <button
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 font-semibold shadow-sm hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors dark:border-gray-700"
               onClick={() => { setShowMapOnly(true); setForceSplitView(false); }}
