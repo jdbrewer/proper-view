@@ -4,8 +4,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Property } from '@prisma/client';
 import PropertyCard from '@/components/properties/PropertyCard';
 import MapView from '@/components/properties/MapView';
-import { MapIcon, ViewColumnsIcon } from '@heroicons/react/24/outline';
+import { MapIcon, ViewColumnsIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import FilterBar from '@/components/properties/FilterBar';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 /**
  * Props for the PropertyListings component
@@ -52,6 +53,38 @@ const PropertyListings: React.FC<PropertyListingsProps> = React.memo(({ properti
   const [viewMode, setLocalViewMode] = useState<'list' | 'map'>('list');
   const [isMobile, setIsMobile] = useState(false);
   const cardRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
+  const [showMapOnly, setShowMapOnly] = useState(false);
+  const [forceSplitView, setForceSplitView] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Restore state from URL on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const view = params.get('view');
+    const selected = params.get('selected');
+    if (view === 'split') setForceSplitView(true);
+    if (view === 'map') setShowMapOnly(true);
+    if (selected) setSelectedPropertyId(Number(selected));
+  }, []);
+
+  // Update URL when split view, map only, or selected property changes
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (forceSplitView) {
+      params.set('view', 'split');
+    } else if (showMapOnly) {
+      params.set('view', 'map');
+    } else {
+      params.delete('view');
+    }
+    if (selectedPropertyId) {
+      params.set('selected', String(selectedPropertyId));
+    } else {
+      params.delete('selected');
+    }
+    window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+  }, [forceSplitView, showMapOnly, selectedPropertyId]);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.matchMedia('(max-width: 768px)').matches);
@@ -76,6 +109,10 @@ const PropertyListings: React.FC<PropertyListingsProps> = React.memo(({ properti
 
   const handlePropertySelect = (propertyId: number) => {
     setSelectedPropertyId(propertyId);
+    if (!isMobile && !hasLocation && showMapOnly) {
+      setShowMapOnly(false);
+      setForceSplitView(true);
+    }
   };
 
   // Sync parent and local viewMode
@@ -110,6 +147,17 @@ const PropertyListings: React.FC<PropertyListingsProps> = React.memo(({ properti
 
   // Determine if we should show split view (map + list) on desktop
   const hasLocation = Boolean(filters.location && filters.location.trim());
+
+  // Bidirectional sync: When a card is clicked, highlight and pan to marker on map (do not navigate)
+  const handleCardClick = (propertyId: number) => {
+    setSelectedPropertyId(propertyId);
+    // If on desktop, no location, and not in split view, reveal split view
+    if (!isMobile && !hasLocation && !forceSplitView) {
+      setForceSplitView(true);
+      setShowMapOnly(false);
+    }
+    // Optionally, you could trigger a pan/zoom on the map here via a ref/callback to MapView
+  };
 
   return (
     <div className="w-full">
@@ -152,20 +200,46 @@ const PropertyListings: React.FC<PropertyListingsProps> = React.memo(({ properti
 
       <FilterBar filters={filters} onFilterChange={onFilterChange} setViewMode={handleSetViewMode} />
 
+      {/* Desktop: Map/List toggle above grid when no location is set */}
+      {!isMobile && !hasLocation && (
+        <div className="flex justify-end items-center mb-4">
+          {showMapOnly ? (
+            <button
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 bg-white text-blue-600 font-semibold shadow-sm hover:bg-blue-50 transition-colors"
+              onClick={() => { setShowMapOnly(false); setForceSplitView(false); }}
+              aria-label="Show property list"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12" rx="2"/><path d="M4 10h16"/></svg>
+              List
+            </button>
+          ) : (
+            <button
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 bg-white text-blue-600 font-semibold shadow-sm hover:bg-blue-50 transition-colors"
+              onClick={() => { setShowMapOnly(true); setForceSplitView(false); }}
+              aria-label="Show map view"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+              Map
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Content */}
       <div className={
         isMobile
           ? `${viewMode === 'map' ? 'md:flex md:gap-4' : ''} ${viewMode === 'map' ? 'h-[calc(100vh-200px)] md:h-[600px]' : ''}`
-          : hasLocation ? 'flex gap-4 h-[600px]' : ''
+          : (hasLocation || forceSplitView) ? 'flex gap-4 h-[600px]' : ''
       }>
-        {/* Desktop: Split view, only if location is set */}
-        {!isMobile && hasLocation && (
+        {/* Desktop: Split view, only if location is set or forced by map selection */}
+        {!isMobile && (hasLocation || forceSplitView) && (
           <>
             <div className="w-2/3 h-full rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
               <MapView
                 properties={properties}
                 selectedPropertyId={selectedPropertyId}
                 onPropertySelect={handlePropertySelect}
+                panToPropertyId={selectedPropertyId}
               />
             </div>
             <div className="w-1/3 h-full overflow-y-auto overflow-x-hidden relative">
@@ -180,15 +254,39 @@ const PropertyListings: React.FC<PropertyListingsProps> = React.memo(({ properti
                         : ''
                     }`}
                   >
-                    <PropertyCard property={property} />
+                    <div className="relative group">
+                      <PropertyCard property={property} clickable={false} />
+                      <button
+                        className="absolute top-2 right-2 z-10 p-1 rounded-full bg-white/80 hover:bg-blue-100 text-blue-600 shadow group-hover:scale-110 transition"
+                        aria-label="View details"
+                        onClick={() => router.push(`/properties/${property.id}`)}
+                      >
+                        <MagnifyingGlassIcon className="w-5 h-5" />
+                      </button>
+                      <button
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        aria-label="Highlight on map"
+                        onClick={() => handleCardClick(property.id)}
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
           </>
         )}
-        {/* Desktop: Grid only if no location */}
-        {!isMobile && !hasLocation && (
+        {/* Desktop: Map only if toggled and no location and not forced split view */}
+        {!isMobile && !hasLocation && showMapOnly && !forceSplitView && (
+          <div className="w-full h-[600px] rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+            <MapView
+              properties={properties}
+              selectedPropertyId={selectedPropertyId}
+              onPropertySelect={handlePropertySelect}
+            />
+          </div>
+        )}
+        {/* Desktop: Grid only if no location and not map only and not forced split view */}
+        {!isMobile && !hasLocation && !showMapOnly && !forceSplitView && (
           <div className="w-full">
             <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {properties.map((property) => (

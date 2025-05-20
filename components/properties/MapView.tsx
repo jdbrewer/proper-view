@@ -19,9 +19,10 @@ interface MapViewProps {
   properties: PropertyWithLocation[];
   selectedPropertyId?: number;
   onPropertySelect?: (propertyId: number) => void;
+  panToPropertyId?: number;
 }
 
-const MapView: React.FC<MapViewProps> = ({ properties, selectedPropertyId, onPropertySelect }) => {
+const MapView: React.FC<MapViewProps> = ({ properties, selectedPropertyId, onPropertySelect, panToPropertyId }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markers = useRef<mapboxgl.Marker[]>([]);
@@ -107,6 +108,15 @@ const MapView: React.FC<MapViewProps> = ({ properties, selectedPropertyId, onPro
       });
     }
   }, [properties, selectedPropertyId, mapLoaded, onPropertySelect]);
+
+  // Pan to property when panToPropertyId changes
+  useEffect(() => {
+    if (!map.current || !mapLoaded || !panToPropertyId) return;
+    const property = properties.find(p => p.id === panToPropertyId);
+    if (property && property.latitude && property.longitude) {
+      map.current.flyTo({ center: [property.longitude, property.latitude], zoom: 15, speed: 1.2 });
+    }
+  }, [panToPropertyId, mapLoaded, properties]);
 
   return (
     <div ref={mapContainer} className="w-full h-full min-h-[300px] md:min-h-[600px]">
