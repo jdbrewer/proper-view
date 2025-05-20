@@ -33,6 +33,7 @@ ProperView is a modern real estate platform that connects property agents with p
 - View detailed property information
 - Submit inquiries about properties
 - Filter properties by location, price range, and bedrooms
+- **Dark Mode Support**: The platform automatically adapts to your system's color scheme, providing a visually comfortable experience in both light and dark environments. All major components and UI elements are styled for optimal contrast and accessibility using Tailwind CSS's dark mode utilities.
 - **Interactive Map View**: Search by location (e.g., "Chicago") to see a split view with a Mapbox-powered map on the left and property cards on the right, similar to Zillow. Click markers to view property details.
 
 ### For Agents
@@ -201,6 +202,15 @@ The project follows BDD scenarios defined in `bdd.mdc`. Each feature should:
 ## Accessibility Features
 
 The platform is built with accessibility as a core requirement, following WCAG 2.1 guidelines:
+
+### Dark Mode Support
+
+ProperView supports dark mode out of the box. The UI automatically switches between light and dark themes based on your device or browser preference, using Tailwind CSS's `dark:` classes. This ensures:
+- Comfortable viewing in low-light environments
+- High contrast and readability for all users
+- Consistent experience across all pages and components
+
+All interactive elements, backgrounds, and text colors are carefully designed for both light and dark modes, improving accessibility and reducing eye strain.
 
 ### Screen Reader Support
 - ARIA live regions for dynamic content updates
