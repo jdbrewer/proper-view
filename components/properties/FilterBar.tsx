@@ -76,15 +76,12 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, setViewM
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Local state for all filters
+  // Local state for all filters (draft state for both mobile and desktop)
   const [localFilters, setLocalFilters] = useState<Filters>(filters);
-  // For mobile, keep a separate draft state
-  const [mobileDraftFilters, setMobileDraftFilters] = useState<Filters>(filters);
 
   // Sync local state with filters if filters change externally
   useEffect(() => {
     setLocalFilters(filters);
-    setMobileDraftFilters(filters);
   }, [filters]);
 
   // Handle click outside to close dropdown
@@ -123,85 +120,48 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, setViewM
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isMobileFiltersOpen]);
 
-  // On desktop, update immediately; on mobile, only update draft
   const handleShowAllStatusesChange = useCallback(() => {
-    if (isMobile) {
-      setMobileDraftFilters(prev => ({ ...prev, showAllStatuses: !prev.showAllStatuses }));
-    } else {
-      setLocalFilters(prev => ({ ...prev, showAllStatuses: !prev.showAllStatuses }));
-    }
-  }, [isMobile]);
+    setLocalFilters(prev => ({ ...prev, showAllStatuses: !prev.showAllStatuses }));
+  }, []);
 
   const handleLocationChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (isMobile) {
-      setMobileDraftFilters(prev => ({ ...prev, location: e.target.value }));
-    } else {
-      setLocalFilters(prev => ({ ...prev, location: e.target.value }));
-    }
-  }, [isMobile]);
+    setLocalFilters(prev => ({ ...prev, location: e.target.value }));
+  }, []);
 
   const handleMinPriceChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value === '' ? 0 : Math.max(0, parseInt(e.target.value) || 0);
-    if (isMobile) {
-      setMobileDraftFilters(prev => ({ ...prev, minPrice: value }));
-    } else {
-      setLocalFilters(prev => ({ ...prev, minPrice: value }));
-    }
-  }, [isMobile]);
+    setLocalFilters(prev => ({ ...prev, minPrice: value }));
+  }, []);
 
   const handleMaxPriceChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value === '' ? 0 : Math.max(0, parseInt(e.target.value) || 0);
-    if (isMobile) {
-      setMobileDraftFilters(prev => ({ ...prev, maxPrice: value }));
-    } else {
-      setLocalFilters(prev => ({ ...prev, maxPrice: value }));
-    }
-  }, [isMobile]);
+    setLocalFilters(prev => ({ ...prev, maxPrice: value }));
+  }, []);
 
   const handleBedroomSelect = useCallback((bedrooms: number) => {
     setIsBedroomDropdownOpen(false);
-    if (isMobile) {
-      setMobileDraftFilters(prev => ({ ...prev, bedrooms }));
-    } else {
-      setLocalFilters(prev => ({ ...prev, bedrooms }));
-    }
-  }, [isMobile]);
+    setLocalFilters(prev => ({ ...prev, bedrooms }));
+  }, []);
 
-  // On desktop, submit changes immediately
-  useEffect(() => {
-    if (!isMobile) {
-      if (localFilters.showAllStatuses !== filters.showAllStatuses ||
-          localFilters.bedrooms !== filters.bedrooms ||
-          localFilters.location !== filters.location ||
-          localFilters.minPrice !== filters.minPrice ||
-          localFilters.maxPrice !== filters.maxPrice) {
-        onFilterChange(localFilters);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localFilters, isMobile]);
-
-  // Handle form submit (Apply Filters on mobile, Search on desktop)
+  // Handle form submit (Apply Filters/Search on both mobile and desktop)
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
+    onFilterChange(localFilters);
     if (isMobile) {
-      onFilterChange(mobileDraftFilters);
       setIsMobileFiltersOpen(false);
       setViewMode?.('list');
-    } else {
-      onFilterChange(localFilters);
     }
-  }, [isMobile, mobileDraftFilters, localFilters, onFilterChange, setViewMode]);
+  }, [isMobile, localFilters, onFilterChange, setViewMode]);
 
   // When closing mobile drawer with X, discard changes
   const handleMobileDrawerClose = useCallback(() => {
     setIsMobileFiltersOpen(false);
-    setMobileDraftFilters(filters); // Reset to last applied filters
+    setLocalFilters(filters); // Reset to last applied filters
   }, [filters]);
 
-  // When opening the mobile drawer, always reset mobileDraftFilters to the latest filters
+  // When opening the mobile drawer, always reset localFilters to the latest filters
   const handleOpenMobileDrawer = useCallback(() => {
-    setMobileDraftFilters(filters);
+    setLocalFilters(filters);
     setIsMobileFiltersOpen(true);
   }, [filters]);
 
@@ -212,18 +172,18 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, setViewM
       <span className="relative inline-block w-10 align-middle select-none transition duration-200 ease-in">
         <input
           type="checkbox"
-          checked={isMobile ? !!mobileDraftFilters.showAllStatuses : !!localFilters.showAllStatuses}
+          checked={localFilters.showAllStatuses}
           onChange={handleShowAllStatusesChange}
           className="sr-only"
         />
         <span
           className={`block w-10 h-6 rounded-full transition-colors duration-200 ${
-            (isMobile ? mobileDraftFilters.showAllStatuses : localFilters.showAllStatuses) ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
+            localFilters.showAllStatuses ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
           }`}
         ></span>
         <span
           className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition transform duration-200 ${
-            (isMobile ? mobileDraftFilters.showAllStatuses : localFilters.showAllStatuses) ? 'translate-x-4' : ''
+            localFilters.showAllStatuses ? 'translate-x-4' : ''
           }`}
         ></span>
       </span>
@@ -278,7 +238,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, setViewM
                   name="location"
                   type="text"
                   placeholder="City, address, or ZIP"
-                  value={mobileDraftFilters.location}
+                  value={localFilters.location}
                   onChange={handleLocationChange}
                   className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 />
@@ -299,7 +259,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, setViewM
                         type="number"
                         min={0}
                         placeholder="Min"
-                        value={mobileDraftFilters.minPrice || ''}
+                        value={localFilters.minPrice || ''}
                         onChange={handleMinPriceChange}
                         className="w-full border border-gray-300 dark:border-gray-600 rounded-lg pl-7 pr-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
                       />
@@ -314,7 +274,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, setViewM
                         type="number"
                         min={0}
                         placeholder="Max"
-                        value={mobileDraftFilters.maxPrice || ''}
+                        value={localFilters.maxPrice || ''}
                         onChange={handleMaxPriceChange}
                         className="w-full border border-gray-300 dark:border-gray-600 rounded-lg pl-7 pr-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
                       />
@@ -334,8 +294,8 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, setViewM
                     onClick={() => setIsBedroomDropdownOpen(!isBedroomDropdownOpen)}
                     className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   >
-                    {mobileDraftFilters.bedrooms && mobileDraftFilters.bedrooms > 0
-                      ? `${mobileDraftFilters.bedrooms}+`
+                    {localFilters.bedrooms && localFilters.bedrooms > 0
+                      ? `${localFilters.bedrooms}+`
                       : 'Any'}
                   </button>
                   {isBedroomDropdownOpen && (
@@ -344,7 +304,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, setViewM
                         type="button"
                         onClick={() => { handleBedroomSelect(0); setIsBedroomDropdownOpen(false); }}
                         className={`w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 ${
-                          mobileDraftFilters.bedrooms === 0 ? 'font-semibold bg-gray-100 dark:bg-gray-700' : ''
+                          localFilters.bedrooms === 0 ? 'font-semibold bg-gray-100 dark:bg-gray-700' : ''
                         }`}
                       >
                         Any
@@ -355,7 +315,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, setViewM
                           type="button"
                           onClick={() => { handleBedroomSelect(opt); setIsBedroomDropdownOpen(false); }}
                           className={`w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 ${
-                            mobileDraftFilters.bedrooms === opt ? 'font-semibold bg-gray-100 dark:bg-gray-700' : ''
+                            localFilters.bedrooms === opt ? 'font-semibold bg-gray-100 dark:bg-gray-700' : ''
                           }`}
                         >
                           {opt}+

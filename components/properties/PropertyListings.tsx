@@ -108,6 +108,9 @@ const PropertyListings: React.FC<PropertyListingsProps> = React.memo(({ properti
     </button>
   );
 
+  // Determine if we should show split view (map + list) on desktop
+  const hasLocation = Boolean(filters.location && filters.location.trim());
+
   return (
     <div className="w-full">
       {/* View Toggle - Mobile Only */}
@@ -153,10 +156,10 @@ const PropertyListings: React.FC<PropertyListingsProps> = React.memo(({ properti
       <div className={
         isMobile
           ? `${viewMode === 'map' ? 'md:flex md:gap-4' : ''} ${viewMode === 'map' ? 'h-[calc(100vh-200px)] md:h-[600px]' : ''}`
-          : 'flex gap-4 h-[600px]'
+          : hasLocation ? 'flex gap-4 h-[600px]' : ''
       }>
-        {/* Desktop: Split view, always show both */}
-        {!isMobile && (
+        {/* Desktop: Split view, only if location is set */}
+        {!isMobile && hasLocation && (
           <>
             <div className="w-2/3 h-full rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
               <MapView
@@ -183,6 +186,18 @@ const PropertyListings: React.FC<PropertyListingsProps> = React.memo(({ properti
               </div>
             </div>
           </>
+        )}
+        {/* Desktop: Grid only if no location */}
+        {!isMobile && !hasLocation && (
+          <div className="w-full">
+            <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {properties.map((property) => (
+                <div key={property.id} className="w-full">
+                  <PropertyCard property={property} />
+                </div>
+              ))}
+            </div>
+          </div>
         )}
         {/* Mobile: Toggle between map and list */}
         {isMobile && viewMode === 'map' && (
