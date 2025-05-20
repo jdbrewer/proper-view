@@ -1,0 +1,59 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Property {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  price       Float
+  address     String
+  bedrooms    Int
+  bathrooms   Float
+  status      String   @default("active") // active, pending, sold
+  views       Int      @default(0)
+  inquiryCount Int     @default(0)
+  image       String?  // Unsplash image URL
+  latitude    Float?   // Location coordinates
+  longitude   Float?   // Location coordinates
+  city        String?  // City name
+  state       String?  // State code
+  zipCode     String?  // ZIP code
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  agentId     Int
+  agent       Agent    @relation(fields: [agentId], references: [id])
+  inquiries   Inquiry[]
+}
+
+model Agent {
+  id        Int        @id @default(autoincrement())
+  name      String
+  email     String     @unique
+  properties Property[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Inquiry {
+  id         Int      @id @default(autoincrement())
+  name       String
+  email      String
+  phone      String
+  message    String
+  propertyId Int
+  property   Property @relation(fields: [propertyId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
