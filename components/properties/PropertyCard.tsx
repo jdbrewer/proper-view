@@ -55,7 +55,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
   
   return (
     <article
-      className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden transition-transform duration-200 hover:scale-[1.02] w-full"
+      className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-transform duration-200 hover:scale-[1.02] w-full"
       aria-label={`Property: ${property.title}`}
       role="article"
     >
@@ -64,7 +64,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
         className="block focus:outline-none focus:ring-2 focus:ring-blue-500"
         aria-label={`View details for ${property.title}`}
       >
-        <div className="relative w-full aspect-[2/1] bg-gray-100">
+        <div className="relative w-full aspect-[2/1] bg-gray-100 dark:bg-gray-700">
           <Image
             src={property.image || ''}
             alt={`${property.title} - ${propertyDescription}`}
@@ -81,15 +81,15 @@ export default function PropertyCard({ property }: PropertyCardProps) {
           </span>
         </div>
         <div className="p-4">
-          <p className="text-2xl font-extrabold text-gray-900 mb-1">${property.price.toLocaleString()}</p>
-          <div className="flex items-center gap-2 text-sm text-gray-700 mb-2">
+          <p className="text-2xl font-extrabold text-gray-900 dark:text-white mb-1">${property.price.toLocaleString()}</p>
+          <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 mb-2">
             <span className="font-semibold" aria-label={`${property.bedrooms} bedrooms`}>{property.bedrooms} bds</span>
             <span aria-hidden="true">·</span>
             <span className="font-semibold" aria-label={`${property.bathrooms} bathrooms`}>{property.bathrooms} ba</span>
             <span aria-hidden="true">·</span>
             <span className="capitalize" aria-label={`Status: ${badge}`}>{badge}</span>
           </div>
-          <div className="text-gray-600 text-sm mb-1 truncate" aria-label={`Address: ${property.address}`}>
+          <div className="text-gray-600 dark:text-gray-400 text-sm mb-1 truncate" aria-label={`Address: ${property.address}`}>
             {property.address}
           </div>
         </div>

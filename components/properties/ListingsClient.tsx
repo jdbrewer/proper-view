@@ -85,6 +85,7 @@ function ListingsContent({ properties }: ListingsClientProps) {
 
   // Initialize filters from URL
   const [filters, setFilters] = useState<Filters>(() => parseFiltersFromSearchParams(searchParams));
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
 
   // Keep filters in sync with URL
   useEffect(() => {
@@ -97,7 +98,6 @@ function ListingsContent({ properties }: ListingsClientProps) {
     setError(null);
     setFilters(newFilters);
     const query = filtersToQuery(newFilters);
-    
     try {
       await router.replace(`?${query}`, { scroll: false });
     } catch (err: unknown) {
@@ -179,14 +179,7 @@ function ListingsContent({ properties }: ListingsClientProps) {
         </div>
       )}
 
-      <FilterBar 
-        filters={filters} 
-        onFilterChange={handleFilterChange}
-        aria-label="Property search filters"
-      />
-
       <h2 className="text-2xl font-bold text-gray-900 mb-8 mt-8">All Properties</h2>
-      
       {/* Results Count */}
       <div 
         className="mb-4 text-gray-500 text-sm"
@@ -209,6 +202,9 @@ function ListingsContent({ properties }: ListingsClientProps) {
         <PropertyListings 
           properties={filteredProperties}
           location={filters.location}
+          filters={filters}
+          onFilterChange={handleFilterChange}
+          setViewMode={setViewMode}
           aria-label="Property listings grid"
         />
       )}
