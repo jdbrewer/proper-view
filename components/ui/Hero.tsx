@@ -7,7 +7,7 @@ export default function Hero() {
       <img
         src="/images/hero_home.jpg"
         alt="Modern home exterior"
-        className="absolute inset-0 w-full h-full object-cover object-[center_70%] z-0"
+        className="absolute inset-0 w-full h-full object-cover object-[center_60%] z-0"
         draggable={false}
       />
       {/* Overlay */}
