@@ -31,19 +31,19 @@ const FeaturedPropertiesCarousel: React.FC<FeaturedPropertiesCarouselProps> = ({
             type="button"
             aria-label="Scroll left"
             onClick={() => scroll("left")}
-            className="rounded-full bg-white border border-gray-300 p-2 shadow hover:bg-gray-100 transition"
+            className="rounded-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-2 shadow hover:bg-gray-100 dark:hover:bg-gray-700 transition"
             style={{ display: properties.length > 1 ? 'block' : 'none' }}
           >
-            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+            <svg width="20" height="20" fill="none" stroke="currentColor" className="text-gray-700 dark:text-gray-200" strokeWidth="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
           </button>
           <button
             type="button"
             aria-label="Scroll right"
             onClick={() => scroll("right")}
-            className="rounded-full bg-white border border-gray-300 p-2 shadow hover:bg-gray-100 transition"
+            className="rounded-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-2 shadow hover:bg-gray-100 dark:hover:bg-gray-700 transition"
             style={{ display: properties.length > 1 ? 'block' : 'none' }}
           >
-            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+            <svg width="20" height="20" fill="none" stroke="currentColor" className="text-gray-700 dark:text-gray-200" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
           </button>
         </div>
       </div>

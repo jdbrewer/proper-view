@@ -214,7 +214,7 @@ const PropertyListings: React.FC<PropertyListingsProps> = React.memo(({ properti
             </button>
           ) : (
             <button
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 bg-white text-blue-600 font-semibold shadow-sm hover:bg-blue-50 transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 font-semibold shadow-sm hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors dark:border-gray-700"
               onClick={() => { setShowMapOnly(true); setForceSplitView(false); }}
               aria-label="Show map view"
             >

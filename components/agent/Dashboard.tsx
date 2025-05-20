@@ -44,18 +44,18 @@ export default function Dashboard({ properties, onAddProperty, onEditProperty, o
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex justify-between items-center my-6">
-        <h1 className="text-2xl font-bold">My Properties</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">My Properties</h1>
         <button
           onClick={onAddProperty}
-          className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900"
         >
           Add New Property
         </button>
       </div>
 
       {error && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
-          <p className="text-red-600">{error}</p>
+        <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
+          <p className="text-red-600 dark:text-red-400">{error}</p>
         </div>
       )}
 
@@ -68,41 +68,41 @@ export default function Dashboard({ properties, onAddProperty, onEditProperty, o
         {properties.map(property => (
           <div
             key={property.id}
-            className="bg-white overflow-hidden shadow rounded-lg"
+            className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border border-gray-200 dark:border-gray-700"
           >
             <div className="p-6">
-              <h3 className="text-lg font-medium text-gray-900">{property.title}</h3>
-              <p className="mt-1 text-sm text-gray-500">{property.address}</p>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">{property.title}</h3>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{property.address}</p>
               <div className="mt-4 grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Price</p>
-                  <p className="mt-1 text-sm text-gray-900">${property.price.toLocaleString()}</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Price</p>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-white">${property.price.toLocaleString()}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Status</p>
-                  <p className="mt-1 text-sm text-gray-900 capitalize">{property.status}</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Status</p>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-white capitalize">{property.status}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Bedrooms</p>
-                  <p className="mt-1 text-sm text-gray-900">{property.bedrooms}</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Bedrooms</p>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-white">{property.bedrooms}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Bathrooms</p>
-                  <p className="mt-1 text-sm text-gray-900">{property.bathrooms}</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Bathrooms</p>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-white">{property.bathrooms}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Views</p>
-                  <p className="mt-1 text-sm text-gray-900">{property.views || 0}</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Views</p>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-white">{property.views || 0}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Inquiries</p>
-                  <p className="mt-1 text-sm text-gray-900">{property.inquiryCount || 0}</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Inquiries</p>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-white">{property.inquiryCount || 0}</p>
                 </div>
               </div>
               <div className="mt-6 flex justify-end space-x-3">
                 <button
                   onClick={() => onEditProperty(property.id)}
-                  className="px-3 py-1 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900"
                 >
                   Edit
                 </button>
@@ -110,7 +110,7 @@ export default function Dashboard({ properties, onAddProperty, onEditProperty, o
                   onClick={() => handleDeleteClick(property)}
                   disabled={isDeleting}
                   aria-label={`Delete property ${property.title}`}
-                  className="px-3 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                  className="px-3 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-900 disabled:opacity-50"
                 >
                   Delete
                 </button>

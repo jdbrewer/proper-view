@@ -71,7 +71,7 @@ export default function InquiryForm({ property, onSubmit, onCancel }: InquiryFor
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
       <h2 className="text-xl font-semibold mb-4">Inquire About {property.title}</h2>
       
       {error && (

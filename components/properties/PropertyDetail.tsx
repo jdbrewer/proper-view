@@ -90,7 +90,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({ property }) => {
         role="status"
         aria-label="Loading property details"
       >
-        <p className="text-gray-600">Loading property details...</p>
+        <p className="text-gray-600 dark:text-gray-400">Loading property details...</p>
       </div>
     );
   }
@@ -103,7 +103,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({ property }) => {
         role="alert"
         aria-label="Property not found"
       >
-        <p className="text-gray-600">Property not found</p>
+        <p className="text-gray-600 dark:text-gray-400">Property not found</p>
       </div>
     );
   }
@@ -153,7 +153,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({ property }) => {
       {/* Image Gallery */}
       <div 
         data-testid="property-image-gallery" 
-        className="relative w-full h-[400px] bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl mb-8 overflow-hidden"
+        className="relative w-full h-[400px] bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-xl mb-8 overflow-hidden"
         role="img"
         aria-label={`Image of ${property.title}`}
       >
@@ -173,7 +173,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({ property }) => {
             role="img"
             aria-label="No image available"
           >
-            <HomeIcon className="w-24 h-24 text-gray-300" aria-hidden="true" />
+            <HomeIcon className="w-24 h-24 text-gray-300 dark:text-gray-600" aria-hidden="true" />
           </div>
         )}
       </div>
@@ -182,8 +182,8 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({ property }) => {
       <div className="mb-8">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">{property.title}</h1>
-            <p className="text-xl text-gray-600">{property.address}</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{property.title}</h1>
+            <p className="text-xl text-gray-600 dark:text-gray-400">{property.address}</p>
           </div>
           <span 
             className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${status.bg} ${status.text} ${status.border} border`}
@@ -193,26 +193,26 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({ property }) => {
             {property.status.charAt(0).toUpperCase() + property.status.slice(1)}
           </span>
         </div>
-        <p className="text-3xl font-bold text-blue-600">${property.price.toLocaleString()}</p>
+        <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">${property.price.toLocaleString()}</p>
       </div>
 
       {/* Property Details */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
         <div className="md:col-span-2">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-4">About this home</h2>
-          <p className="text-gray-600 mb-6">{property.description}</p>
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">About this home</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">{property.description}</p>
 
           {/* Key Details */}
           <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="flex items-center gap-2 text-gray-600">
+            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
               <HomeIcon className="h-6 w-6" aria-hidden="true" />
               <span aria-label={`${property.bedrooms} bedrooms`}>{property.bedrooms} beds</span>
             </div>
-            <div className="flex items-center gap-2 text-gray-600">
+            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
               <HomeModernIcon className="h-6 w-6" aria-hidden="true" />
               <span aria-label={`${property.bathrooms} bathrooms`}>{property.bathrooms} baths</span>
             </div>
-            <div className="flex items-center gap-2 text-gray-600">
+            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
               <CalendarIcon className="h-6 w-6" aria-hidden="true" />
               <span>Listed on {property.createdAt.toLocaleDateString('en-US', { 
                 year: 'numeric', 
@@ -225,12 +225,12 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({ property }) => {
           {/* Features */}
           {property.features && property.features.length > 0 && (
             <div data-testid="property-features" className="space-y-4">
-              <h3 className="text-xl font-semibold text-gray-900">Features</h3>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Features</h3>
               <div className="flex flex-wrap gap-2" role="list" aria-label="Property features">
                 {property.features.map((feature, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-700"
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                     role="listitem"
                   >
                     {feature}
@@ -243,16 +243,16 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({ property }) => {
 
         {/* Inquiry Form */}
         <div 
-          className="bg-white rounded-xl shadow-lg p-6 h-fit"
+          className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 h-fit"
           role="complementary"
           aria-labelledby="inquiry-form-title"
         >
-          <h3 id="inquiry-form-title" className="text-xl font-semibold text-gray-900 mb-4">
+          <h3 id="inquiry-form-title" className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
             Interested in this property?
           </h3>
           {inquirySuccess ? (
             <div 
-              className="p-4 bg-green-50 border border-green-200 rounded-md text-green-700"
+              className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md text-green-700 dark:text-green-400"
               role="alert"
               aria-label="Success message"
             >
@@ -262,7 +262,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({ property }) => {
             <>
               {inquiryError && (
                 <div 
-                  className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700"
+                  className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md text-red-700 dark:text-red-400"
                   role="alert"
                   aria-label="Error message"
                 >
