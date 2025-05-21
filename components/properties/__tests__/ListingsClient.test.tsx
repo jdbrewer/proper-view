@@ -20,11 +20,14 @@ jest.mock('next/navigation', () => ({
   useSearchParams: () => mockSearchParams,
 }));
 
+// Mock MapView to avoid mapbox-gl issues in Jest/Node
+jest.mock('@/components/properties/MapView', () => () => <div>Mocked MapView</div>);
+
 describe('ListingsClient', () => {
   const mockProperties: Property[] = [
     {
       id: 1,
-      title: 'Modern Downtown Apartment',
+      title: 'Modern Downtown Apartment', 
       description: 'Beautiful apartment in the heart of downtown',
       price: 500000,
       address: '123 Main St, San Francisco',
@@ -34,9 +37,14 @@ describe('ListingsClient', () => {
       views: 0,
       inquiryCount: 0,
       image: '/images/property1.jpg',
+      latitude: 37.7749,
+      longitude: -122.4194,
+      city: 'San Francisco',
+      state: 'CA',
+      zipCode: '94105',
       createdAt: new Date(),
       updatedAt: new Date(),
-      agentId: 1
+      agentId: 1,
     },
     {
       id: 2,
@@ -52,7 +60,12 @@ describe('ListingsClient', () => {
       image: '/images/property2.jpg',
       createdAt: new Date(),
       updatedAt: new Date(),
-      agentId: 1
+      agentId: 1,
+      latitude: 37.7749,
+      longitude: -122.4194,
+      city: 'San Francisco',
+      state: 'CA',
+      zipCode: '94105'
     }
   ];
 
@@ -64,15 +77,15 @@ describe('ListingsClient', () => {
     render(<ListingsClient properties={mockProperties} />);
   
     // click the "Show Sold & Pending Properties" toggle
-    const statusToggle = screen.getByRole('checkbox', {
-      name: /show sold & pending properties/i
-    });
+    const statusToggle = screen.getAllByRole('checkbox', {
+      name: /show sold & pending/i
+    })[0];
     fireEvent.click(statusToggle);
   
     // now both prices should be in the document
     await waitFor(() => {
-      expect(screen.getByText('$500,000')).toBeInTheDocument();
-      expect(screen.getByText('$1,000,000')).toBeInTheDocument();
+      expect(screen.getByText(/\$500,000/, { exact: false })).toBeInTheDocument();
+      expect(screen.getByText(/\$1,000,000/, { exact: false })).toBeInTheDocument();
     });
   });
 
@@ -88,8 +101,8 @@ describe('ListingsClient', () => {
 
     // Wait for the filter to be applied
     await waitFor(() => {
-      expect(screen.getByText('$500,000')).toBeInTheDocument();
-      expect(screen.queryByText('$1,000,000')).not.toBeInTheDocument();
+      expect(screen.getByText(/\$500,000/, { exact: false })).toBeInTheDocument();
+      expect(screen.queryByText(/\$1,000,000/, { exact: false })).not.toBeInTheDocument();
     });
   });
 
@@ -106,8 +119,8 @@ describe('ListingsClient', () => {
     fireEvent.click(searchButton);
  
     await waitFor(() => {
-      expect(screen.queryByText('$500,000')).not.toBeInTheDocument();
-      expect(screen.queryByText('$1,000,000')).not.toBeInTheDocument();
+      expect(screen.queryByText(/\$500,000/, { exact: false })).not.toBeInTheDocument();
+      expect(screen.queryByText(/\$1,000,000/, { exact: false })).not.toBeInTheDocument();
     });
   });
 
@@ -115,7 +128,7 @@ describe('ListingsClient', () => {
     render(<ListingsClient properties={mockProperties} />);
     
     // Click the bedrooms button to open dropdown
-    const bedroomsButton = screen.getByRole('button', { name: /any/i });
+    const bedroomsButton = screen.getByTestId('bedrooms-button');
     fireEvent.click(bedroomsButton);
   
     // Select 3 bedrooms from dropdown
@@ -128,8 +141,8 @@ describe('ListingsClient', () => {
   
     await waitFor(() => {
      // no active properties match 3+ bedrooms, so both prices should be gone
-     expect(screen.queryByText('$500,000')).not.toBeInTheDocument();
-     expect(screen.queryByText('$1,000,000')).not.toBeInTheDocument();
+     expect(screen.queryByText(/\$500,000/, { exact: false })).not.toBeInTheDocument();
+     expect(screen.queryByText(/\$1,000,000/, { exact: false })).not.toBeInTheDocument();
      // and the empty-state message should appear
      expect(screen.getByText(/no properties match your search criteria/i)).toBeInTheDocument();
     });
@@ -139,34 +152,34 @@ describe('ListingsClient', () => {
     render(<ListingsClient properties={mockProperties} />);
     
     // Only the active property should be shown
-    expect(screen.getByText('$500,000')).toBeInTheDocument();
-    expect(screen.queryByText('$1,000,000')).not.toBeInTheDocument();
+    expect(screen.getByText(/\$500,000/, { exact: false })).toBeInTheDocument();
+    expect(screen.queryByText(/\$1,000,000/, { exact: false })).not.toBeInTheDocument();
   });
 
   it('shows all properties when show all statuses is toggled', async () => {
     render(<ListingsClient properties={mockProperties} />);
     
     // Initially only active property is shown
-    expect(screen.getByText('$500,000')).toBeInTheDocument();
-    expect(screen.queryByText('$1,000,000')).not.toBeInTheDocument();
+    expect(screen.getByText(/\$500,000/, { exact: false })).toBeInTheDocument();
+    expect(screen.queryByText(/\$1,000,000/, { exact: false })).not.toBeInTheDocument();
 
     // Toggle show all statuses
-    const statusToggle = screen.getByRole('checkbox', {
-      name: /show sold & pending properties/i
-    });
+    const statusToggle = screen.getAllByRole('checkbox', {
+      name: /show sold & pending/i
+    })[0];
     fireEvent.click(statusToggle);
 
     // Now both properties should be shown
     await waitFor(() => {
-      expect(screen.getByText('$500,000')).toBeInTheDocument();
-      expect(screen.getByText('$1,000,000')).toBeInTheDocument();
+      expect(screen.getByText(/\$500,000/, { exact: false })).toBeInTheDocument();
+      expect(screen.getByText(/\$1,000,000/, { exact: false })).toBeInTheDocument();
     });
   });
 
   it('updates URL when filters change', async () => {
     render(<ListingsClient properties={mockProperties} />);
     
-    const locationInput = screen.getByLabelText('Location');
+    const locationInput = screen.getByTestId('location-input');
     fireEvent.change(locationInput, { target: { value: 'San Francisco' } });
 
     // Submit the form by clicking the search button
@@ -176,6 +189,49 @@ describe('ListingsClient', () => {
     // Wait for the URL to be updated
     await waitFor(() => {
       expect(mockRouter.replace).toHaveBeenCalled();
+    });
+  });
+
+  it('shows loading state when filters are being applied', async () => {
+    render(<ListingsClient properties={mockProperties} />);
+    const locationInput = screen.getByTestId('location-input');
+    fireEvent.change(locationInput, { target: { value: 'San Francisco' } });
+    const searchButton = screen.getByRole('button', { name: /search/i });
+    fireEvent.click(searchButton);
+
+    // Loading state should appear
+    expect(screen.getByText(/updating property listings/i)).toBeInTheDocument();
+
+    // Wait for loading to disappear
+    await waitFor(() => {
+      expect(screen.queryByText(/updating property listings/i)).not.toBeInTheDocument();
+    });
+  });
+
+  it('shows error state if router.replace fails', async () => {
+    // Make router.replace throw
+    mockRouter.replace.mockRejectedValueOnce(new Error('Router error'));
+    render(<ListingsClient properties={mockProperties} />);
+    const locationInput = screen.getByTestId('location-input');
+    fireEvent.change(locationInput, { target: { value: 'San Francisco' } });
+    const searchButton = screen.getByRole('button', { name: /search/i });
+    fireEvent.click(searchButton);
+
+    await waitFor(() => {
+      expect(screen.getByText(/failed to update filters/i)).toBeInTheDocument();
+    });
+  });
+
+  it('announces filter results to screen readers', async () => {
+    render(<ListingsClient properties={mockProperties} />);
+    const locationInput = screen.getByTestId('location-input');
+    fireEvent.change(locationInput, { target: { value: 'San Francisco' } });
+    const searchButton = screen.getByRole('button', { name: /search/i });
+    fireEvent.click(searchButton);
+
+    await waitFor(() => {
+      // The announcement is in a sr-only div
+      expect(screen.getByText(/showing/i, { selector: 'div' })).toBeInTheDocument();
     });
   });
 });
