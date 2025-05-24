@@ -21,6 +21,7 @@ interface ListingsClientProps {
  * @property {number} minPrice - Minimum price filter
  * @property {number} maxPrice - Maximum price filter
  * @property {number} bedrooms - Number of bedrooms filter
+ * @property {number} bathrooms - Number of bathrooms filter
  * @property {boolean} [showAllStatuses] - Whether to show all property statuses
  */
 interface Filters {
@@ -28,6 +29,7 @@ interface Filters {
   minPrice: number;
   maxPrice: number;
   bedrooms: number;
+  bathrooms: number;
   showAllStatuses?: boolean;
 }
 
@@ -42,6 +44,7 @@ function parseFiltersFromSearchParams(searchParams: URLSearchParams): Filters {
     minPrice: Number(searchParams.get('minPrice')) || 0,
     maxPrice: Number(searchParams.get('maxPrice')) || 0,
     bedrooms: Number(searchParams.get('bedrooms')) || 0,
+    bathrooms: Number(searchParams.get('bathrooms')) || 0,
     showAllStatuses: searchParams.get('showAllStatuses') === 'true',
   };
 }
@@ -57,6 +60,7 @@ function filtersToQuery(filters: Filters) {
   if (filters.minPrice) params.set('minPrice', String(filters.minPrice));
   if (filters.maxPrice) params.set('maxPrice', String(filters.maxPrice));
   if (filters.bedrooms) params.set('bedrooms', String(filters.bedrooms));
+  if (filters.bathrooms) params.set('bathrooms', String(filters.bathrooms));
   if (filters.showAllStatuses) params.set('showAllStatuses', 'true');
   return params.toString();
 }
@@ -130,6 +134,10 @@ function ListingsContent({ properties }: ListingsClientProps) {
       if (filters.bedrooms > 0 && property.bedrooms < filters.bedrooms) {
         return false;
       }
+      // Bathrooms filter
+      if (filters.bathrooms > 0 && property.bathrooms < filters.bathrooms) {
+        return false;
+      }
       return true;
     });
   }, [properties, filters]);
@@ -141,6 +149,7 @@ function ListingsContent({ properties }: ListingsClientProps) {
       filters.minPrice > 0 && `priced above $${filters.minPrice.toLocaleString()}`,
       filters.maxPrice > 0 && `priced below $${filters.maxPrice.toLocaleString()}`,
       filters.bedrooms > 0 && `with ${filters.bedrooms}+ bedrooms`,
+      filters.bathrooms > 0 && `with ${filters.bathrooms}+ bathrooms`,
       filters.showAllStatuses && 'including sold and pending properties'
     ].filter(Boolean).join(', ');
 

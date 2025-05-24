@@ -17,11 +17,14 @@ describe('FilterBar', () => {
     minPrice: 0,
     maxPrice: 0,
     bedrooms: 0,
+    bathrooms: 0,
     showAllStatuses: false
   };
 
   // Bedroom options defined in FilterBar component
   const bedroomOptions = [0, 1, 2, 3, 4, 5, 6];
+  // Bathroom options defined in FilterBar component
+  const bathroomOptions = [0, 1, 2, 3, 4, 5, 6];
 
   beforeEach(() => {
     mockOnFilterChange.mockClear();
@@ -87,16 +90,13 @@ describe('FilterBar', () => {
   it('opens and closes bedrooms dropdown', () => {
     const { container } = render(<FilterBar filters={initialFilters} onFilterChange={mockOnFilterChange} />);
     
-    // Find the desktop form directly via CSS selector since it doesn't have a role="form"
-    const desktopForm = container.querySelector('form.hidden.md\\:block');
-    
-    // Find Any button (for bedrooms) by looking at buttons in the rendered component
-    const anyButtons = screen.getAllByText('Any');
-    // Use the second one, which is likely in the desktop view
-    const bedroomsButton = anyButtons[anyButtons.length > 1 ? 1 : 0];
+    // Find the bedroom button by its label
+    const bedroomsLabel = screen.getAllByText('Bedrooms')[0];
+    const bedroomsButton = bedroomsLabel.parentElement?.querySelector('button');
+    expect(bedroomsButton).toBeInTheDocument();
     
     // Click to open dropdown
-    fireEvent.click(bedroomsButton);
+    fireEvent.click(bedroomsButton!);
     
     // Check if dropdown options are displayed
     const optionElements = screen.getAllByText('2+');
@@ -106,7 +106,6 @@ describe('FilterBar', () => {
     fireEvent.mouseDown(document.body);
     
     // The dropdown should be closed - options are no longer visible in the document
-    // After clicking outside, there should be no or fewer 2+ options visible
     const closedOptionElements = screen.queryAllByText('2+');
     expect(closedOptionElements.length).toBeLessThan(optionElements.length);
   });
@@ -114,13 +113,13 @@ describe('FilterBar', () => {
   it('selects a bedroom option and submits form', () => {
     const { container } = render(<FilterBar filters={initialFilters} onFilterChange={mockOnFilterChange} />);
     
-    // Find the bedroom dropdown buttons
-    const anyButtons = screen.getAllByText('Any');
-    // Get the desktop one (usually the second one)
-    const bedroomsButton = anyButtons[anyButtons.length > 1 ? 1 : 0];
+    // Find the bedroom button by its label
+    const bedroomsLabel = screen.getAllByText('Bedrooms')[0];
+    const bedroomsButton = bedroomsLabel.parentElement?.querySelector('button');
+    expect(bedroomsButton).toBeInTheDocument();
     
     // Open dropdown
-    fireEvent.click(bedroomsButton);
+    fireEvent.click(bedroomsButton!);
     
     // Find the 2+ option and click it
     const options = screen.getAllByText('2+');
@@ -241,6 +240,54 @@ describe('FilterBar', () => {
     // Verify onFilterChange was called with a non-negative value
     expect(mockOnFilterChange).toHaveBeenCalledWith(expect.objectContaining({
       minPrice: 0
+    }));
+  });
+
+  it('opens and closes bathrooms dropdown', () => {
+    const { container } = render(<FilterBar filters={initialFilters} onFilterChange={mockOnFilterChange} />);
+    
+    // Find the bathroom button by its label
+    const bathroomsLabel = screen.getAllByText('Bathrooms')[0];
+    const bathroomsButton = bathroomsLabel.parentElement?.querySelector('button');
+    expect(bathroomsButton).toBeInTheDocument();
+    
+    // Click to open dropdown
+    fireEvent.click(bathroomsButton!);
+    
+    // Check if dropdown options are displayed
+    const optionElements = screen.getAllByText('2+');
+    expect(optionElements.length).toBeGreaterThan(0);
+    
+    // Click outside to close dropdown
+    fireEvent.mouseDown(document.body);
+    
+    // The dropdown should be closed - options are no longer visible in the document
+    const closedOptionElements = screen.queryAllByText('2+');
+    expect(closedOptionElements.length).toBeLessThan(optionElements.length);
+  });
+
+  it('selects a bathroom option and submits form', () => {
+    const { container } = render(<FilterBar filters={initialFilters} onFilterChange={mockOnFilterChange} />);
+    
+    // Find the bathroom button by its label
+    const bathroomsLabel = screen.getAllByText('Bathrooms')[0];
+    const bathroomsButton = bathroomsLabel.parentElement?.querySelector('button');
+    expect(bathroomsButton).toBeInTheDocument();
+    
+    // Open dropdown
+    fireEvent.click(bathroomsButton!);
+    
+    // Find the 2+ option and click it
+    const options = screen.getAllByText('2+');
+    fireEvent.click(options[0]);
+    
+    // Find the Search button
+    const searchButton = screen.getByRole('button', { name: /search/i });
+    fireEvent.click(searchButton);
+    
+    // Verify onFilterChange was called with the selected bathrooms value
+    expect(mockOnFilterChange).toHaveBeenCalledWith(expect.objectContaining({
+      bathrooms: 2
     }));
   });
 });

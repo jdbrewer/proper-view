@@ -8,6 +8,7 @@ import { MagnifyingGlassIcon, FunnelIcon, XMarkIcon } from '@heroicons/react/24/
  * @property {number} minPrice - Minimum price filter
  * @property {number} maxPrice - Maximum price filter
  * @property {number} bedrooms - Number of bedrooms filter
+ * @property {number} bathrooms - Number of bathrooms filter
  * @property {boolean} [showAllStatuses] - Whether to show all property statuses
  */
 interface Filters {
@@ -15,6 +16,7 @@ interface Filters {
   minPrice: number;
   maxPrice: number;
   bedrooms: number;
+  bathrooms: number;
   showAllStatuses?: boolean;
 }
 
@@ -23,7 +25,7 @@ interface Filters {
  * @interface FilterBarProps
  * @property {Filters} filters - Current filter values
  * @property {(filters: Filters) => void} onFilterChange - Callback function when filters change
- * @property {(mode: 'list' | 'map') => void} setViewMode - Callback function to set view mode
+ * @property {(mode: 'list' | 'map') => void} [setViewMode] - Optional callback to set view mode
  */
 interface FilterBarProps {
   filters: Filters;
@@ -38,10 +40,16 @@ interface FilterBarProps {
 const bedroomOptions = [0, 1, 2, 3, 4, 5, 6];
 
 /**
+ * Available bathroom options for filtering
+ * @constant
+ */
+const bathroomOptions = [0, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5];
+
+/**
  * FilterBar Component
  * 
  * Provides a form interface for filtering property listings by location, price range,
- * number of bedrooms, and property status. Includes accessibility features and keyboard
+ * number of bedrooms, bathrooms, and property status. Includes accessibility features and keyboard
  * navigation support.
  * 
  * @component
@@ -63,8 +71,10 @@ const bedroomOptions = [0, 1, 2, 3, 4, 5, 6];
  */
 const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, setViewMode }) => {
   const [isBedroomDropdownOpen, setIsBedroomDropdownOpen] = useState(false);
+  const [isBathroomDropdownOpen, setIsBathroomDropdownOpen] = useState(false);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const bedroomsRef = useRef<HTMLDivElement>(null);
+  const bathroomsRef = useRef<HTMLDivElement>(null);
   const filtersRef = useRef<HTMLDivElement>(null);
 
   // Detect mobile viewport
@@ -84,29 +94,33 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, setViewM
     setLocalFilters(filters);
   }, [filters]);
 
-  // Handle click outside to close dropdown
+  // Handle click outside to close dropdowns
   useEffect(() => {
-    if (!isBedroomDropdownOpen) return;
+    if (!isBedroomDropdownOpen && !isBathroomDropdownOpen) return;
     function handleClickOutside(event: MouseEvent) {
       if (bedroomsRef.current && !bedroomsRef.current.contains(event.target as Node)) {
         setIsBedroomDropdownOpen(false);
       }
+      if (bathroomsRef.current && !bathroomsRef.current.contains(event.target as Node)) {
+        setIsBathroomDropdownOpen(false);
+      }
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isBedroomDropdownOpen]);
+  }, [isBedroomDropdownOpen, isBathroomDropdownOpen]);
 
-  // Handle keyboard navigation for dropdown
+  // Handle keyboard navigation for dropdowns
   useEffect(() => {
-    if (!isBedroomDropdownOpen) return;
+    if (!isBedroomDropdownOpen && !isBathroomDropdownOpen) return;
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
         setIsBedroomDropdownOpen(false);
+        setIsBathroomDropdownOpen(false);
       }
     }
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isBedroomDropdownOpen]);
+  }, [isBedroomDropdownOpen, isBathroomDropdownOpen]);
 
   // Handle click outside to close mobile filters
   useEffect(() => {
@@ -141,6 +155,11 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, setViewM
   const handleBedroomSelect = useCallback((bedrooms: number) => {
     setIsBedroomDropdownOpen(false);
     setLocalFilters(prev => ({ ...prev, bedrooms }));
+  }, []);
+
+  const handleBathroomSelect = useCallback((bathrooms: number) => {
+    setIsBathroomDropdownOpen(false);
+    setLocalFilters(prev => ({ ...prev, bathrooms }));
   }, []);
 
   // Handle form submit (Apply Filters/Search on both mobile and desktop)
@@ -205,29 +224,33 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, setViewM
   // Mobile Filter Drawer
   const MobileFilterDrawer = (
     <div
-      className={`fixed inset-0 z-50 md:hidden ${
-        isMobileFiltersOpen ? 'block' : 'hidden'
+      className={`fixed inset-0 z-50 bg-black bg-opacity-50 transition-opacity ${
+        isMobileFiltersOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}
+      aria-hidden={!isMobileFiltersOpen}
     >
-      <div className="fixed inset-0 bg-black bg-opacity-25" />
-      <div className="fixed inset-y-0 right-0 max-w-full flex">
-        <div
-          ref={filtersRef}
-          className="w-full max-w-md bg-white dark:bg-gray-800 shadow-xl"
-        >
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-lg font-medium text-gray-900 dark:text-white">Filters</h2>
-            <button
-              type="button"
-              onClick={handleMobileDrawerClose}
-              className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
-            >
-              <XMarkIcon className="w-6 h-6" />
-            </button>
+      <div
+        ref={filtersRef}
+        className={`fixed inset-y-0 right-0 w-full max-w-sm bg-white dark:bg-gray-800 shadow-xl transform transition-transform ${
+          isMobileFiltersOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <div className="h-full flex flex-col">
+          <div className="px-4 py-6 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-medium text-gray-900 dark:text-white">Filters</h2>
+              <button
+                type="button"
+                onClick={handleMobileDrawerClose}
+                className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+              >
+                <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+              </button>
+            </div>
           </div>
-          <div className="p-4 space-y-4">
-            {/* Mobile Filter Form Content */}
-            <form onSubmit={handleSubmit} className="space-y-4">
+
+          <div className="flex-1 overflow-y-auto px-4 py-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
               {/* Location Search */}
               <div>
                 <label htmlFor="mobile-location" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -316,6 +339,49 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, setViewM
                           onClick={() => { handleBedroomSelect(opt); setIsBedroomDropdownOpen(false); }}
                           className={`w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 ${
                             localFilters.bedrooms === opt ? 'font-semibold bg-gray-100 dark:bg-gray-700' : ''
+                          }`}
+                        >
+                          {opt}+
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Bathrooms */}
+              <div>
+                <label htmlFor="mobile-bathrooms" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Bathrooms
+                </label>
+                <div className="relative" ref={bathroomsRef}>
+                  <button
+                    type="button"
+                    onClick={() => setIsBathroomDropdownOpen(!isBathroomDropdownOpen)}
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  >
+                    {localFilters.bathrooms && localFilters.bathrooms > 0
+                      ? `${localFilters.bathrooms}+`
+                      : 'Any'}
+                  </button>
+                  {isBathroomDropdownOpen && (
+                    <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg">
+                      <button
+                        type="button"
+                        onClick={() => { handleBathroomSelect(0); setIsBathroomDropdownOpen(false); }}
+                        className={`w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 ${
+                          localFilters.bathrooms === 0 ? 'font-semibold bg-gray-100 dark:bg-gray-700' : ''
+                        }`}
+                      >
+                        Any
+                      </button>
+                      {bathroomOptions.slice(1).map((opt) => (
+                        <button
+                          key={opt}
+                          type="button"
+                          onClick={() => { handleBathroomSelect(opt); setIsBathroomDropdownOpen(false); }}
+                          className={`w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 ${
+                            localFilters.bathrooms === opt ? 'font-semibold bg-gray-100 dark:bg-gray-700' : ''
                           }`}
                         >
                           {opt}+
@@ -450,6 +516,49 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, setViewM
                       onClick={() => handleBedroomSelect(opt)}
                       className={`w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 ${
                         localFilters.bedrooms === opt ? 'font-semibold bg-gray-100 dark:bg-gray-700' : ''
+                      }`}
+                    >
+                      {opt}+
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Bathrooms Dropdown */}
+          <div className="min-w-[140px]" ref={bathroomsRef}>
+            <label htmlFor="bathrooms" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Bathrooms
+            </label>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setIsBathroomDropdownOpen(!isBathroomDropdownOpen)}
+                className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              >
+                {localFilters.bathrooms && localFilters.bathrooms > 0
+                  ? `${localFilters.bathrooms}+`
+                  : 'Any'}
+              </button>
+              {isBathroomDropdownOpen && (
+                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg">
+                  <button
+                    type="button"
+                    onClick={() => handleBathroomSelect(0)}
+                    className={`w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 ${
+                      localFilters.bathrooms === 0 ? 'font-semibold bg-gray-100 dark:bg-gray-700' : ''
+                    }`}
+                  >
+                    Any
+                  </button>
+                  {bathroomOptions.slice(1).map((opt) => (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => handleBathroomSelect(opt)}
+                      className={`w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 ${
+                        localFilters.bathrooms === opt ? 'font-semibold bg-gray-100 dark:bg-gray-700' : ''
                       }`}
                     >
                       {opt}+
