@@ -146,13 +146,30 @@ export default function NewPropertyPage() {
           <label htmlFor="address" className="block text-sm font-medium text-gray-700">
             Address
           </label>
-          <input
-            type="text"
-            name="address"
-            id="address"
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
+          <div className="relative">
+            <input
+              type="text"
+              name="address"
+              id="address"
+              required
+              pattern="^[0-9]+\s+[A-Za-z\s]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Court|Ct|Circle|Cir|Way|Terrace|Ter|Place|Pl|Square|Sq|Highway|Hwy|Parkway|Pkwy|Suite|Ste|Unit|Floor|Fl|Apartment|Apt|#)[,\s]+[A-Za-z\s]+[,\s]+[A-Z]{2}[,\s]+[0-9]{5}(?:-[0-9]{4})?$"
+              title="Please enter a valid address in the format: 1234 Main St, City, ST 12345"
+              placeholder="1234 Main St, City, ST 12345"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+            <div className="absolute right-2 top-1/2 -translate-y-1/2">
+              <div className="group relative">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="hidden group-hover:block absolute right-0 w-64 p-2 bg-gray-800 text-white text-xs rounded shadow-lg z-10">
+                  Format: Street Number, Street Name, City, State ZIP<br/>
+                  Example: 3924 Forest View Dr., Washougal, WA 98671
+                </div>
+              </div>
+            </div>
+          </div>
+          <p className="mt-1 text-sm text-gray-500">Enter the complete address including street number, name, city, state, and ZIP code</p>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
