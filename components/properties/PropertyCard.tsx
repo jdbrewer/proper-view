@@ -1,18 +1,22 @@
-import React from 'react';
-import { HomeIcon } from '@heroicons/react/24/outline';
-import { Property } from '@prisma/client';
-import Image from 'next/image';
-import Link from 'next/link';
+import React from "react";
+import { HomeIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { Property } from "@prisma/client";
+import Image from "next/image";
+import Link from "next/link";
 
 /**
  * Props for the PropertyCard component
  * @interface PropertyCardProps
  * @property {Property} property - The property data to display
  * @property {boolean} clickable - Whether the card is clickable
+ * @property {boolean} showDetailIcon - Whether to show the detail icon
+ * @property {function} onDetailClick - Callback function to handle detail click
  */
 interface PropertyCardProps {
   property: Property;
   clickable?: boolean;
+  showDetailIcon?: boolean;
+  onDetailClick?: (e: React.MouseEvent) => void;
 }
 
 /**
@@ -20,21 +24,21 @@ interface PropertyCardProps {
  * @constant
  */
 const statusColors = {
-  active: 'bg-green-600',
-  pending: 'bg-yellow-500',
-  sold: 'bg-red-600',
+  active: "bg-green-600",
+  pending: "bg-yellow-500",
+  sold: "bg-red-600",
 };
 
 /**
  * PropertyCard Component
- * 
+ *
  * Displays a single property in a card format with image, price, details, and status.
  * The card is clickable and links to the property's detail page.
- * 
+ *
  * @component
  * @param {PropertyCardProps} props - Component props
  * @returns {JSX.Element} A card displaying property information
- * 
+ *
  * @example
  * ```tsx
  * const property = {
@@ -47,14 +51,24 @@ const statusColors = {
  *   image: '/images/property1.jpg',
  *   address: '123 Main St'
  * };
- * 
+ *
  * return <PropertyCard property={property} />;
  * ```
  */
-export default function PropertyCard({ property, clickable = true }: PropertyCardProps) {
-  const badge = property.status === 'active' ? 'Active' : property.status === 'pending' ? 'Pending' : 'Sold';
+export default function PropertyCard({
+  property,
+  clickable = true,
+  showDetailIcon = false,
+  onDetailClick,
+}: PropertyCardProps) {
+  const badge =
+    property.status === "active"
+      ? "Active"
+      : property.status === "pending"
+      ? "Pending"
+      : "Sold";
   const propertyDescription = `${property.bedrooms} bedroom, ${property.bathrooms} bathroom ${property.status} property at ${property.address}`;
-  
+
   if (clickable) {
     return (
       <article
@@ -62,8 +76,8 @@ export default function PropertyCard({ property, clickable = true }: PropertyCar
         aria-label={`Property: ${property.title}`}
         role="article"
       >
-        <Link 
-          href={`/properties/${property.id}`} 
+        <Link
+          href={`/properties/${property.id}`}
           className="block focus:outline-none focus:ring-2 focus:ring-blue-500"
           aria-label={`View details for ${property.title}`}
         >
@@ -78,23 +92,54 @@ export default function PropertyCard({ property, clickable = true }: PropertyCar
                 aria-hidden="false"
               />
             ) : null}
-            <span 
-              className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold text-white shadow ${statusColors[property.status as keyof typeof statusColors]}`}
+            {showDetailIcon && (
+              <button
+                className="absolute top-3 right-3 z-10 p-1 rounded-full bg-white/80 hover:bg-blue-100 text-blue-600 shadow transition"
+                aria-label="View details"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onDetailClick) onDetailClick(e);
+                }}
+              >
+                <MagnifyingGlassIcon className="w-5 h-5" />
+              </button>
+            )}
+            <span
+              className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold text-white shadow ${
+                statusColors[property.status as keyof typeof statusColors]
+              }`}
               aria-label={`Status: ${badge}`}
             >
               {badge}
             </span>
           </div>
           <div className="p-4">
-            <p className="text-2xl font-extrabold text-gray-900 dark:text-white mb-1">${property.price.toLocaleString()}</p>
+            <p className="text-2xl font-extrabold text-gray-900 dark:text-white mb-1">
+              ${property.price.toLocaleString()}
+            </p>
             <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 mb-2">
-              <span className="font-semibold" aria-label={`${property.bedrooms} bedrooms`}>{property.bedrooms} bds</span>
+              <span
+                className="font-semibold"
+                aria-label={`${property.bedrooms} bedrooms`}
+              >
+                {property.bedrooms} bds
+              </span>
               <span aria-hidden="true">·</span>
-              <span className="font-semibold" aria-label={`${property.bathrooms} bathrooms`}>{property.bathrooms} ba</span>
+              <span
+                className="font-semibold"
+                aria-label={`${property.bathrooms} bathrooms`}
+              >
+                {property.bathrooms} ba
+              </span>
               <span aria-hidden="true">·</span>
-              <span className="capitalize" aria-label={`Status: ${badge}`}>{badge}</span>
+              <span className="capitalize" aria-label={`Status: ${badge}`}>
+                {badge}
+              </span>
             </div>
-            <div className="text-gray-600 dark:text-gray-400 text-sm mb-1 truncate" aria-label={`Address: ${property.address}`}>
+            <div
+              className="text-gray-600 dark:text-gray-400 text-sm mb-1 truncate"
+              aria-label={`Address: ${property.address}`}
+            >
               {property.address}
             </div>
           </div>
@@ -119,27 +164,58 @@ export default function PropertyCard({ property, clickable = true }: PropertyCar
               aria-hidden="false"
             />
           ) : null}
-          <span 
-            className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold text-white shadow ${statusColors[property.status as keyof typeof statusColors]}`}
+          {showDetailIcon && (
+            <button
+              className="absolute top-3 right-3 z-10 p-1 rounded-full bg-white/80 hover:bg-blue-100 text-blue-600 shadow transition"
+              aria-label="View details"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onDetailClick) onDetailClick(e);
+              }}
+            >
+              <MagnifyingGlassIcon className="w-5 h-5" />
+            </button>
+          )}
+          <span
+            className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold text-white shadow ${
+              statusColors[property.status as keyof typeof statusColors]
+            }`}
             aria-label={`Status: ${badge}`}
           >
             {badge}
           </span>
         </div>
         <div className="p-4">
-          <p className="text-2xl font-extrabold text-gray-900 dark:text-white mb-1">${property.price.toLocaleString()}</p>
+          <p className="text-2xl font-extrabold text-gray-900 dark:text-white mb-1">
+            ${property.price.toLocaleString()}
+          </p>
           <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 mb-2">
-            <span className="font-semibold" aria-label={`${property.bedrooms} bedrooms`}>{property.bedrooms} bds</span>
+            <span
+              className="font-semibold"
+              aria-label={`${property.bedrooms} bedrooms`}
+            >
+              {property.bedrooms} bds
+            </span>
             <span aria-hidden="true">·</span>
-            <span className="font-semibold" aria-label={`${property.bathrooms} bathrooms`}>{property.bathrooms} ba</span>
+            <span
+              className="font-semibold"
+              aria-label={`${property.bathrooms} bathrooms`}
+            >
+              {property.bathrooms} ba
+            </span>
             <span aria-hidden="true">·</span>
-            <span className="capitalize" aria-label={`Status: ${badge}`}>{badge}</span>
+            <span className="capitalize" aria-label={`Status: ${badge}`}>
+              {badge}
+            </span>
           </div>
-          <div className="text-gray-600 dark:text-gray-400 text-sm mb-1 truncate" aria-label={`Address: ${property.address}`}>
+          <div
+            className="text-gray-600 dark:text-gray-400 text-sm mb-1 truncate"
+            aria-label={`Address: ${property.address}`}
+          >
             {property.address}
           </div>
         </div>
       </article>
     );
   }
-} 
+}

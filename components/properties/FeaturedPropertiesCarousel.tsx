@@ -2,13 +2,17 @@
 import React, { useRef } from "react";
 import { Property } from "@prisma/client";
 import Link from "next/link";
-import PropertyCard from './PropertyCard';
+import PropertyCard from "./PropertyCard";
+import router from "next/router";
+import MagnifyingGlassIcon from "@heroicons/react/24/outline/MagnifyingGlassIcon";
 
 interface FeaturedPropertiesCarouselProps {
   properties: Property[];
 }
 
-const FeaturedPropertiesCarousel: React.FC<FeaturedPropertiesCarouselProps> = ({ properties }) => {
+const FeaturedPropertiesCarousel: React.FC<FeaturedPropertiesCarouselProps> = ({
+  properties,
+}) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (direction: "left" | "right") => {
@@ -16,7 +20,10 @@ const FeaturedPropertiesCarousel: React.FC<FeaturedPropertiesCarouselProps> = ({
       const { scrollLeft, clientWidth } = scrollRef.current;
       const scrollAmount = clientWidth * 0.8;
       scrollRef.current.scrollTo({
-        left: direction === "left" ? scrollLeft - scrollAmount : scrollLeft + scrollAmount,
+        left:
+          direction === "left"
+            ? scrollLeft - scrollAmount
+            : scrollLeft + scrollAmount,
         behavior: "smooth",
       });
     }
@@ -32,18 +39,38 @@ const FeaturedPropertiesCarousel: React.FC<FeaturedPropertiesCarouselProps> = ({
             aria-label="Scroll left"
             onClick={() => scroll("left")}
             className="rounded-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-2 shadow hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-            style={{ display: properties.length > 1 ? 'block' : 'none' }}
+            style={{ display: properties.length > 1 ? "block" : "none" }}
           >
-            <svg width="20" height="20" fill="none" stroke="currentColor" className="text-gray-700 dark:text-gray-200" strokeWidth="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+            <svg
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              className="text-gray-700 dark:text-gray-200"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path d="M15 19l-7-7 7-7" />
+            </svg>
           </button>
           <button
             type="button"
             aria-label="Scroll right"
             onClick={() => scroll("right")}
             className="rounded-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-2 shadow hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-            style={{ display: properties.length > 1 ? 'block' : 'none' }}
+            style={{ display: properties.length > 1 ? "block" : "none" }}
           >
-            <svg width="20" height="20" fill="none" stroke="currentColor" className="text-gray-700 dark:text-gray-200" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+            <svg
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              className="text-gray-700 dark:text-gray-200"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path d="M9 5l7 7-7 7" />
+            </svg>
           </button>
         </div>
       </div>
@@ -53,8 +80,21 @@ const FeaturedPropertiesCarousel: React.FC<FeaturedPropertiesCarouselProps> = ({
         style={{ scrollSnapType: "x mandatory" }}
       >
         {properties.map((property) => (
-          <div key={property.id} className="min-w-[320px] max-w-xs flex-shrink-0 snap-start" style={{ scrollSnapAlign: "start" }}>
-            <PropertyCard property={property} />
+          <div
+            key={property.id}
+            className="min-w-[320px] max-w-xs flex-shrink-0 snap-start"
+            style={{ scrollSnapAlign: "start" }}
+          >
+            <div className="relative group">
+              <PropertyCard property={property} />
+              <button
+                className="absolute top-2 right-2 z-10 p-1 rounded-full bg-white/80 hover:bg-blue-100 text-blue-600 shadow group-hover:scale-110 transition"
+                aria-label="View details"
+                onClick={() => router.push(`/properties/${property.id}`)}
+              >
+                <MagnifyingGlassIcon className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         ))}
       </div>
@@ -62,4 +102,4 @@ const FeaturedPropertiesCarousel: React.FC<FeaturedPropertiesCarouselProps> = ({
   );
 };
 
-export default FeaturedPropertiesCarousel; 
+export default FeaturedPropertiesCarousel;
