@@ -68,14 +68,16 @@ export default function PropertyCard({ property, clickable = true }: PropertyCar
           aria-label={`View details for ${property.title}`}
         >
           <div className="relative w-full aspect-[2/1] bg-gray-100 dark:bg-gray-700">
-            <Image
-              src={property.image || ''}
-              alt={`${property.title} - ${propertyDescription}`}
-              fill
-              className="object-cover"
-              priority
-              aria-hidden="false"
-            />
+            {property.image ? (
+              <Image
+                src={property.image}
+                alt={`${property.title} - ${propertyDescription}`}
+                fill
+                className="object-cover"
+                priority
+                aria-hidden="false"
+              />
+            ) : null}
             <span 
               className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold text-white shadow ${statusColors[property.status as keyof typeof statusColors]}`}
               aria-label={`Status: ${badge}`}
@@ -107,14 +109,16 @@ export default function PropertyCard({ property, clickable = true }: PropertyCar
         role="article"
       >
         <div className="relative w-full aspect-[2/1] bg-gray-100 dark:bg-gray-700">
-          <Image
-            src={property.image || ''}
-            alt={`${property.title} - ${propertyDescription}`}
-            fill
-            className="object-cover"
-            priority
-            aria-hidden="false"
-          />
+          {property.image ? (
+            <Image
+              src={property.image}
+              alt={`${property.title} - ${propertyDescription}`}
+              fill
+              className="object-cover"
+              priority
+              aria-hidden="false"
+            />
+          ) : null}
           <span 
             className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold text-white shadow ${statusColors[property.status as keyof typeof statusColors]}`}
             aria-label={`Status: ${badge}`}
